@@ -573,9 +573,12 @@ sleep_fun(boolean, _, false, _) ->
     0;
 sleep_fun(boolean, _, true, _) ->
     1;
+sleep_fun(string, _, FieldValue, _) ->
+    sumo_utils:to_list(FieldValue);
 sleep_fun(custom, _, FieldValue, Attrs) ->
     case lists:keyfind(type, 1, Attrs) of
         {type, text} -> FieldValue;
+        {type, bigint} -> FieldValue;
         _ -> term_to_binary(FieldValue)
     end;
 sleep_fun(_, _, FieldValue, _) ->
