@@ -323,24 +323,16 @@ count_by(DocName, Conditions, State) ->
         _  -> [" WHERE ", lists:flatten(Clauses)]
     end,
 
-    PreName = list_to_atom("find_by_" ++ PreStatementName0),
+    PreName = list_to_atom("count_by" ++ PreStatementName0),
 
-    Fun =
-    fun() ->
-        % Select * is not good..
-        [
-            "SELECT COUNT(*) FROM ",
-            escape(DocName),
-            WhereClause
-        ]
-    end,
-
-    StatementName = prepare(DocName, PreName, Fun),
+    StatementName = prepare(DocName, PreName, fun() ->
+        ["SELECT COUNT(*) FROM ", escape(DocName), WhereClause]
+                                            end),
 
     ExecArgs = Values,
 
     case execute(StatementName, ExecArgs, State) of
-        #result_packet{} = Result ->
+        #result_packet{rows = [Result]} ->
             %% TODO: check if there is a better way to extract the result count
             [[_, [Value], _]] = io_lib:format("~w", [Result]),
             {ok, list_to_integer(Value), State};
