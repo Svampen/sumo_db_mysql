@@ -370,7 +370,12 @@ create_column(Field) ->
     sumo_internal:field_attrs(Field)).
 
 create_column(Name, integer, Attrs) ->
-  [escape(Name), " INT(11) ", create_column_options(Attrs)];
+    case lists:member(bigint, Attrs) of
+        true ->
+            [escape(Name), " BIGINT(20) ", create_column_options(Attrs)];
+        false ->
+            [escape(Name), " INT(11) ", create_column_options(Attrs)]
+    end;
 
 create_column(Name, float, Attrs) ->
   [escape(Name), " FLOAT ", create_column_options(Attrs)];
